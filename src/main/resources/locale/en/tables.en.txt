@@ -1,0 +1,57 @@
+Advanced Carpentry Table
+Advanced Masonry Table
+Advanced Tailoring Table
+Anvil
+Arrastra
+Assembly Line
+Automatic Loom
+Bakery Oven
+Ballot Box
+Blast Furnace
+Bloomery
+Butchery Table
+Campfire
+Campsite
+Carpentry Table
+Cast Iron Stove
+Cement Kiln
+Electric Lathe
+Electric Machinist Table
+Electric Planer
+Electric Stamping Press
+Electronics Assembly
+Farmers Table
+Fiber Scutching Station
+Fishery
+Froth Floatation Cell
+Glassworks
+Jaw Crusher
+Kiln
+Kitchen
+Laboratory
+Lathe
+Loom
+Machinist Table
+Masonry Table
+Medium Shipyard
+Mill
+Oil Refinery
+Pump Jack
+Research Table
+Robotic Assembly Line
+Rocker Box
+Rolling Mill
+Sawmill
+Screening Machine
+Screw Press
+Sensor Based Belt Sorter
+Shaper
+Small Paper Machine
+Small Shipyard
+Spin Melter
+Stamp Mill
+Stove
+Tailoring Table
+Tool Bench
+Wainwright Table
+Workbench

@@ -1,0 +1,26 @@
+Axe:AxeItem
+Bow:BowItem
+Chair:ChairItem
+Compost:CompostItem
+Court:CourtItem
+Crafting Table:Crafting Table
+Crushed Stone:CrushedStoneItem
+Dirt:DirtItem
+Dirt Ramp:DirtRampItem
+Door:DoorItem
+Land Claim Stake:LandClaimStakeItem
+Modern Research:ModernResearch
+Pickaxe:PickaxeItem
+Sand:SandItem
+Shovel:ShovelItem
+Skill Scrolls:Skill Scrolls
+Small Table:SmallTableItem
+Soil Sampler:SoilSamplerItem
+Stone Ramp:StoneRampItem
+Stone Well:StoneWellItem
+Table:TableItem
+Tailings:TailingsItem
+Tailoring Basic Upgrade:TailoringBasicUpgradeItem
+Wet Tailings:WetTailingsItem
+Wood Sign:WoodSignItem
+Wooden Elevator Call Post:WoodenElevatorCallPost
