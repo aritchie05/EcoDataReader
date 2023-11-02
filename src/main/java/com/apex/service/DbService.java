@@ -64,7 +64,7 @@ public class DbService {
                 try (PreparedStatement statement = connection.prepareStatement(INSERT_INGREDIENT_SQL)) {
                     statement.setString(1, recipe.getNameID());
                     statement.setString(2, ingredient.getItemNameID());
-                    statement.setInt(3, ingredient.getQuantity());
+                    statement.setBigDecimal(3, ingredient.getQuantity());
                     statement.setBoolean(4, ingredient.isReducible());
                     statement.setBoolean(5, ingredient.isTag());
                     statement.executeUpdate();
@@ -74,7 +74,7 @@ public class DbService {
                 try (PreparedStatement statement = connection.prepareStatement(INSERT_OUTPUT_SQL)) {
                     statement.setString(1, recipe.getNameID());
                     statement.setString(2, output.getItemNameID());
-                    statement.setInt(3, output.getQuantity());
+                    statement.setBigDecimal(3, output.getQuantity());
                     statement.setBoolean(4, output.isReducible());
                     statement.executeUpdate();
                 }

@@ -30,6 +30,10 @@ Go to [Eco Crowdin](https://crowdin.com/translate/eco-by-strange-loop-games). Se
 Then, click the top left drawer icon and go to File | Download. Save this file in `src/main/resources/locale/defaultstrings.csv`
 
 ## Using the Project
+Use `compareItemsAndRecipes()` to compare recipes and items in the crafting tool with the latest version of the server code. 
+Any list of items or recipes can be converted to json using Gson and then passed to the `JsonTypeScriptProcessor` to convert
+the json into a valid TypeScript string to be put in the crafting tool.
+
 Use `generateNewItemsString()` and `generateNewRecipesString()` methods to generate new entries for `items.ts` and `recipes.ts` respectively.
 Note that this will generate any items or recipes that are not contained within the `current-items.txt` and `current-recipes.txt` files within the
 resources folder.

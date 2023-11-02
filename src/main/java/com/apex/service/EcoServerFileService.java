@@ -8,15 +8,16 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class FileService {
+public class EcoServerFileService {
 
-    private static final Logger LOGGER = LogManager.getLogger(FileService.class);
+    private static final Logger LOGGER = LogManager.getLogger(EcoServerFileService.class);
 
     private static final String ITEMS_LOCATION = "AutoGen\\";
 
@@ -34,7 +35,7 @@ public class FileService {
 
     private final String ecoServerPath;
 
-    public FileService(String ecoServerModsCorePath) {
+    public EcoServerFileService(String ecoServerModsCorePath) {
         ecoServerPath = ecoServerModsCorePath;
     }
 
@@ -95,7 +96,12 @@ public class FileService {
         List<Recipe> recipes = new ArrayList<>();
 
         for (String folder : RECIPE_FOLDERS) {
-            Collection<File> files = FileUtils.listFiles(new File(ecoServerPath + ITEMS_LOCATION + folder), new String[]{"cs"}, false);
+            Collection<File> files;
+            try {
+                 files = FileUtils.listFiles(new File(ecoServerPath + ITEMS_LOCATION + folder), new String[]{"cs"}, false);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
 
             for (File file : files) {
                 try {
@@ -165,10 +171,6 @@ public class FileService {
 
     @SuppressWarnings("squid:S3776")
     private static Recipe getRecipeFromCSFileContents(String contents, String fileName) {
-        if (fileName.contains("WetBrick")) {
-
-        }
-
         //Recipe display name (e.g. Butcher Bison)
         String recipeNameRegex = "displayName:\\s*Localizer\\.DoStr\\(\"([\\w\\s]+)\"\\)";
         Pattern pattern = Pattern.compile(recipeNameRegex);
@@ -196,12 +198,12 @@ public class FileService {
         List<Ingredient> ingredients = new ArrayList<>();
 
         //Recipe ingredients - Specific items (non-tag)
-        String recipeIngredientRegex = "new IngredientElement\\(typeof\\((\\w+)\\), (\\d+), (\\w+)";
+        String recipeIngredientRegex = "new IngredientElement\\(typeof\\( *(\\w+)\\), (\\d+(?:\\.\\d+)?)f?, (\\w+)";
         pattern = Pattern.compile(recipeIngredientRegex);
         matcher = pattern.matcher(contents);
         while (matcher.find()) {
             String ingredientNameID = matcher.group(1);
-            int quantity = Integer.parseInt(matcher.group(2));
+            BigDecimal quantity = new BigDecimal(matcher.group(2));
             boolean reducible = false;
             if (matcher.group(3).equalsIgnoreCase("typeof")) {
                 reducible = true;
@@ -215,12 +217,12 @@ public class FileService {
         }
 
         //Recipe ingredients - tags
-        String tagRecipeIngredientsRegex = "new IngredientElement\\(\"(\\w+)\", (\\d+), (\\w+)";
+        String tagRecipeIngredientsRegex = "new IngredientElement\\(\"([\\w\\s]+)\", (\\d+), (\\w+)";
         pattern = Pattern.compile(tagRecipeIngredientsRegex);
         matcher = pattern.matcher(contents);
         while (matcher.find()) {
-            String tagIngredientNameID = matcher.group(1);
-            int quantity = Integer.parseInt(matcher.group(2));
+            String tagIngredientNameID = matcher.group(1).replaceAll(" ", "");
+            BigDecimal quantity = new BigDecimal(matcher.group(2));
             boolean reducible = matcher.group(3).equalsIgnoreCase("typeof");
             ingredients.add(Ingredient.builder()
                     .itemNameID(tagIngredientNameID)
@@ -237,16 +239,16 @@ public class FileService {
         List<Output> outputs = new ArrayList<>();
 
         //Recipe outputs
-        String recipeOutputsRegex = "new CraftingElement<(\\w+)>\\((\\d*)\\)";
+        String recipeOutputsRegex = "new CraftingElement<(\\w+)>\\((\\d*\\.?\\d*)f?\\)";
         pattern = Pattern.compile(recipeOutputsRegex);
         matcher = pattern.matcher(contents);
         int outputCount = 0;
         while (matcher.find()) {
             String outputItemNameID = matcher.group(1);
             String quantityString = matcher.group(2);
-            int quantity = 1;
+            BigDecimal quantity = new BigDecimal(1);
             if (!quantityString.isBlank()) {
-                quantity = Integer.parseInt(quantityString);
+                quantity = new BigDecimal(quantityString);
             }
             Output output = Output.builder().itemNameID(outputItemNameID).quantity(quantity).reducible(false).build();
             if (outputCount == 0) {
@@ -267,8 +269,8 @@ public class FileService {
         matcher = pattern.matcher(contents);
         while (matcher.find()) {
             String outputItemNameID = matcher.group(1);
-            int quantity = Integer.parseInt(matcher.group(2));
-            boolean reducible = !matcher.group(3).isBlank();
+            BigDecimal quantity = new BigDecimal(matcher.group(2));
+            boolean reducible = !matcher.group(3).isBlank() || outputItemNameID.contains("Tailings") || outputItemNameID.contains("Slag");
             outputs.add(Output.builder().itemNameID(outputItemNameID).quantity(quantity).reducible(reducible).build());
         }
 

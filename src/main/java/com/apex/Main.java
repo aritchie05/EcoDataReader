@@ -3,10 +3,13 @@ package com.apex;
 import com.apex.locale.Translator;
 import com.apex.model.Item;
 import com.apex.model.Recipe;
+import com.apex.model.comparison.ItemComparisonResult;
+import com.apex.model.comparison.RecipeComparisonResult;
 import com.apex.model.locale.LocaleData;
-import com.apex.model.serialize.JsonToTypeScriptProcessor;
-import com.apex.service.FileService;
-import com.apex.service.GsonService;
+import com.apex.model.serialize.JsonTypeScriptProcessor;
+import com.apex.service.CraftingToolFileService;
+import com.apex.service.DataElementComparisonService;
+import com.apex.service.EcoServerFileService;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 
@@ -17,22 +20,43 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.apex.service.GsonService.getGson;
+
 public class Main {
 
-    private static final String ECO_SERVER_PATH = "D:\\Eco Servers\\EcoServerPC_v0.10.0.0-beta-staging-2770\\Mods\\__core__\\";
+    private static final String ECO_SERVER_PATH = "D:\\Eco Servers\\EcoServerPC_v0.10.0.0-beta-staging-2785\\Mods\\__core__\\";
+    private static final String WHITE_TIGER_PATH = "D:\\Eco Servers\\WhiteTiger-10Playtest\\";
+
+    private static final String TOOL_PATH = "C:\\Users\\aritc\\IdeaProjects\\EcoCraftingTool\\src\\assets\\data\\";
 
     public static void main(String[] args) throws IOException {
-        List<Item> items = getItemsFromFiles();
-        List<Recipe> recipes = getRecipesFromFiles();
-        writeItemsToFile();
-        writeRecipesToFile();
-        String recipesStr = generateNewRecipesString();
-        String itemsStr = generateNewItemsString();
-        getLocaleJson();
+
     }
 
+    public static void compareWhiteTigerRecipes() throws IOException {
+        EcoServerFileService ecoServerFileService = new EcoServerFileService(WHITE_TIGER_PATH);
+        List<Recipe> wtRecipes = ecoServerFileService.getAllRecipes();
+        List<Recipe> toolWtRecipes = getWhiteTigerRecipesFromTool();
+        DataElementComparisonService comparisonService = new DataElementComparisonService();
+        RecipeComparisonResult recipeComparisonResult = comparisonService.analyzeRecipeDifferences(toolWtRecipes, wtRecipes);
+    }
+
+    public static void compareItemsAndRecipes() throws IOException {
+        EcoServerFileService ecoServerFileService = new EcoServerFileService(ECO_SERVER_PATH);
+        List<Recipe> recipes = ecoServerFileService.getAllRecipes();
+        List<Item> items = ecoServerFileService.getAllItems();
+        List<Recipe> oldRecipes = getRecipesFromTool();
+        List<Item> oldItems = getItemsFromTool();
+        DataElementComparisonService comparisonService = new DataElementComparisonService();
+        RecipeComparisonResult recipeComparisonResult = comparisonService.analyzeRecipeDifferences(oldRecipes, recipes);
+        ItemComparisonResult itemComparisonResult = comparisonService.analyzeItemDifferences(oldItems, items);
+        String newRecipeTs = JsonTypeScriptProcessor.processJsonToTypeScript(getGson().toJson(recipeComparisonResult.getNewRecipes()));
+        String newItemTs = JsonTypeScriptProcessor.processJsonToTypeScript(getGson().toJson(itemComparisonResult.getNewItems()));
+    }
+
+
     public static String getLocaleJson() throws IOException {
-        Translator translator = new Translator(new FileService(ECO_SERVER_PATH));
+        Translator translator = new Translator(new EcoServerFileService(ECO_SERVER_PATH));
         List<LocaleData> localeData = translator.generateLocaleData();
         String json = new Gson().toJson(localeData);
         return json;
@@ -57,11 +81,11 @@ public class Main {
     public static String generateNewRecipesString() throws IOException {
         List<Recipe> newRecipes = getRecipesFromFiles();
 
-        Gson gson = GsonService.getGson();
+        Gson gson = getGson();
         String recipeJson = gson.toJson(newRecipes);
 
         //Convert the skill, table, item name IDs into the proper TS method calls
-        String tsString = JsonToTypeScriptProcessor.processJsonToTypeScript(recipeJson);
+        String tsString = JsonTypeScriptProcessor.processJsonToTypeScript(recipeJson);
 
         //Remove [] from the ends of the json
         tsString = tsString.substring(1, tsString.length() - 1);
@@ -71,11 +95,11 @@ public class Main {
     public static String generateNewItemsString() throws IOException {
         List<Item> newItems = getItemsFromFiles();
 
-        Gson gson = GsonService.getGson();
+        Gson gson = getGson();
         String itemJson = gson.toJson(newItems);
 
         //Convert the skill, table, item name IDs into the proper TS method calls
-        String tsString = JsonToTypeScriptProcessor.processJsonToTypeScript(itemJson);
+        String tsString = JsonTypeScriptProcessor.processJsonToTypeScript(itemJson);
 
         //Remove [] from the ends of the json
         tsString = tsString.substring(1, tsString.length() - 1);
@@ -83,8 +107,8 @@ public class Main {
     }
 
     private static List<Recipe> getRecipesFromFiles() throws IOException {
-        FileService fileService = new FileService(ECO_SERVER_PATH);
-        List<Recipe> recipes = fileService.getAllRecipes();
+        EcoServerFileService ecoServerFileService = new EcoServerFileService(ECO_SERVER_PATH);
+        List<Recipe> recipes = ecoServerFileService.getAllRecipes();
         recipes.sort(Comparator.comparing(Recipe::getName));
 
         List<Recipe> newRecipes = new ArrayList<>();
@@ -97,8 +121,8 @@ public class Main {
     }
 
     private static List<Item> getItemsFromFiles() throws IOException {
-        FileService fileService = new FileService(ECO_SERVER_PATH);
-        List<Item> items = fileService.getAllItems();
+        EcoServerFileService ecoServerFileService = new EcoServerFileService(ECO_SERVER_PATH);
+        List<Item> items = ecoServerFileService.getAllItems();
         items.sort(Comparator.comparing(Item::getName));
 
         List<Item> newItems = new ArrayList<>();
@@ -121,5 +145,20 @@ public class Main {
         List<String> recipeNames = FileUtils.readLines(new File("src/main/resources/current-recipes.txt"),
                 StandardCharsets.UTF_8);
         return recipeNames.stream().noneMatch(r -> r.equalsIgnoreCase(recipe.getName()));
+    }
+
+    public static List<Recipe> getRecipesFromTool() throws IOException {
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        return craftingToolFileService.readRecipesFromTool();
+    }
+
+    public static List<Recipe> getWhiteTigerRecipesFromTool() throws IOException {
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        return craftingToolFileService.readWhiteTigerRecipesFromTool();
+    }
+
+    public static List<Item> getItemsFromTool() throws IOException {
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        return craftingToolFileService.readItemsFromTool();
     }
 }

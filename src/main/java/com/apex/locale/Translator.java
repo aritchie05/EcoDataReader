@@ -7,7 +7,7 @@ import com.apex.model.Skill;
 import com.apex.model.locale.DefaultStringsHeaderMap;
 import com.apex.model.locale.LocaleData;
 import com.apex.model.locale.LocaleEntry;
-import com.apex.service.FileService;
+import com.apex.service.EcoServerFileService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,10 +21,10 @@ import java.util.List;
 public class Translator {
     public static final String LOCALE_FOLDER = "src/main/resources/locale/";
 
-    private final FileService fileService;
+    private final EcoServerFileService fileService;
 
-    public Translator(FileService fileService) {
-        this.fileService = fileService;
+    public Translator(EcoServerFileService ecoServerFileService) {
+        this.fileService = ecoServerFileService;
     }
 
     public List<LocaleData> generateLocaleData() throws IOException {
