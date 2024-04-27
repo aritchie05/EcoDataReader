@@ -198,7 +198,7 @@ public class EcoServerFileService {
         List<Ingredient> ingredients = new ArrayList<>();
 
         //Recipe ingredients - Specific items (non-tag)
-        String recipeIngredientRegex = "new IngredientElement\\(typeof\\( *(\\w+)\\), (\\d+(?:\\.\\d+)?)f?, (\\w+)";
+        String recipeIngredientRegex = "new IngredientElement\\(typeof\\( *(\\w+)\\), (\\d+(?:\\.\\d+)?)f?, *(\\w+)";
         pattern = Pattern.compile(recipeIngredientRegex);
         matcher = pattern.matcher(contents);
         while (matcher.find()) {
@@ -217,7 +217,7 @@ public class EcoServerFileService {
         }
 
         //Recipe ingredients - tags
-        String tagRecipeIngredientsRegex = "new IngredientElement\\(\"([\\w\\s]+)\", (\\d+), (\\w+)";
+        String tagRecipeIngredientsRegex = "new IngredientElement\\(\"([\\w\\s]+)\", *(\\d+), *(\\w+)";
         pattern = Pattern.compile(tagRecipeIngredientsRegex);
         matcher = pattern.matcher(contents);
         while (matcher.find()) {

@@ -24,13 +24,13 @@ import static com.apex.service.GsonService.getGson;
 
 public class Main {
 
-    private static final String ECO_SERVER_PATH = "D:\\Eco Servers\\EcoServerPC_v0.10.0.0-beta-staging-2785\\Mods\\__core__\\";
+    private static final String ECO_SERVER_PATH = "D:\\Eco Servers\\EcoServerPC_v0.10.2.1-beta\\Mods\\__core__\\";
     private static final String WHITE_TIGER_PATH = "D:\\Eco Servers\\WhiteTiger-10Playtest\\";
 
-    private static final String TOOL_PATH = "C:\\Users\\aritc\\IdeaProjects\\EcoCraftingTool\\src\\assets\\data\\";
+    private static final String ECO_CRAFTING_TOOL_PATH = "C:\\Users\\aritc\\IdeaProjects\\EcoCraftingTool\\src\\assets\\data\\";
 
     public static void main(String[] args) throws IOException {
-
+        compareItemsAndRecipes();
     }
 
     public static void compareWhiteTigerRecipes() throws IOException {
@@ -148,17 +148,17 @@ public class Main {
     }
 
     public static List<Recipe> getRecipesFromTool() throws IOException {
-        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(ECO_CRAFTING_TOOL_PATH);
         return craftingToolFileService.readRecipesFromTool();
     }
 
     public static List<Recipe> getWhiteTigerRecipesFromTool() throws IOException {
-        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(ECO_CRAFTING_TOOL_PATH);
         return craftingToolFileService.readWhiteTigerRecipesFromTool();
     }
 
     public static List<Item> getItemsFromTool() throws IOException {
-        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(TOOL_PATH);
+        CraftingToolFileService craftingToolFileService = new CraftingToolFileService(ECO_CRAFTING_TOOL_PATH);
         return craftingToolFileService.readItemsFromTool();
     }
 }
